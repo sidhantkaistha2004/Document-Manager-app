@@ -81,7 +81,7 @@ Documents are stored in the browser's localStorage, which means:
 ## Getting Started
 
 1. **Download Files**: Save all files in the same directory
-2. **Open Application**: Double-click `launch.bat` (assuming nodejs is already installed in your system
+2. **Open Application**: Double-click `launch.bat` (assuming nodejs is already installed in your system) rest all the dependencies will automatically installed
 3. **Start Using**: Begin adding and managing your documents
 
 ## Customization
