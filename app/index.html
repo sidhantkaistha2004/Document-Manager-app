@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-folder-open"></i>
+                    <h2>Doc Manager</h2>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="tab-btn active" data-tab="add">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Document</span>
+                </button>
+                <button class="tab-btn" data-tab="search">
+                    <i class="fas fa-search"></i>
+                    <span>Search</span>
+                </button>
+                <button class="tab-btn" data-tab="inventory">
+                    <i class="fas fa-list"></i>
+                    <span>Inventory</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="stats">
+                    <i class="fas fa-chart-bar"></i>
+                    <span id="documentCount">0 documents</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1 id="pageTitle">Add New Document</h1>
+                <p id="pageDescription">Organize and manage your documents efficiently</p>
+            </header>
+
+            <!-- Tab Contents -->
+            <div class="tab-content active" data-tab="add">
+                <section class="add-document" id="add-document-section">
+                    <div class="section-header">
+                        <i class="fas fa-upload"></i>
+                        <h2>Add New Document</h2>
+                    </div>
+                    
+                    <div id="drop-zone" class="drop-zone">
+                        <p>Drag & drop files or folders here, or click to browse.</p>
+                    </div>
+                    <p class="separator"><span>Or add a single file with a custom title</span></p>
+                    
+                    <form id="documentForm">
+                        <div class="form-group">
+                            <label for="documentTitle">
+                                <i class="fas fa-file-signature"></i>
+                                Document Title:
+                            </label>
+                            <input type="text" id="documentTitle" placeholder="Enter a memorable title (e.g., 'Marketing Report Q3')" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fileInput">
+                                <i class="fas fa-folder-open"></i>
+                                Choose File:
+                            </label>
+                            <div class="file-input-wrapper">
+                                <button type="button" class="file-btn">
+                                    <i class="fas fa-upload"></i> Choose File
+                                </button>
+                                <button type="button" id="previewFileBtn" class="file-btn" disabled>
+                                    <i class="fas fa-eye"></i> Preview
+                                </button>
+                                <span id="selectedFileName" class="selected-file">No file selected</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="documentPath">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Document Path:
+                            </label>
+                            <input type="text" id="documentPath" placeholder="File path will be auto-filled" readonly>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-save"></i> Add to Inventory
+                        </button>
+                    </form>
+                </section>
+            </div>
+
+            <div class="tab-content" data-tab="search">
+                <section class="search-section">
+                    <div class="section-header">
+                        <i class="fas fa-search"></i>
+                        <h2>Search Documents</h2>
+                    </div>
+                    
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="searchInput" placeholder="Search by document name, file name, or path...">
+                            <button id="searchBtn" class="search-btn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                        <div class="filter-group" style="margin-top: 10px;">
+                            <label for="searchTypeFilter">
+                                <i class="fas fa-filter"></i>
+                                File Type:
+                            </label>
+                            <select id="searchTypeFilter" class="filter-select">
+                                <option value="all">All Types</option>
+                                <option value="pdf">PDF Files</option>
+                                <option value="docx">Word Documents</option>
+                                <option value="pptx">PowerPoint</option>
+                                <option value="xlsx">Excel Files</option>
+                                <option value="txt">Text Files</option>
+                                <option value="images">Images (PNG, JPG, etc.)</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="search-tips">
+                        <h3><i class="fas fa-lightbulb"></i> Search Tips:</h3>
+                        <ul>
+                            <li>Search by the document name you entered</li>
+                            <li>Search by the original file name</li>
+                            <li>Search by file path</li>
+                            <li>Search results will appear instantly as you type</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="search-results-section">
+                    <div class="section-header">
+                        <i class="fas fa-poll"></i>
+                        <h2>Search Results</h2>
+                    </div>
+                    <div id="searchResultsList" class="document-list">
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <p>Enter a search term above to find documents.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tab-content" data-tab="inventory">
+                <section class="inventory-section">
+                    <div class="section-header">
+                        <i class="fas fa-list"></i>
+                        <h2>Document Inventory</h2>
+                    </div>
+                    
+                    <!-- Category Tabs -->
+                    <div class="category-tabs">
+                        <button class="category-tab active" data-category="all">
+                            <i class="fas fa-th-large"></i>
+                            All Files
+                        </button>
+                        <button class="category-tab" data-category="documents">
+                            <i class="fas fa-file-alt"></i>
+                            Documents
+                        </button>
+                        <button class="category-tab" data-category="images">
+                            <i class="fas fa-image"></i>
+                            Images
+                        </button>
+                        <button class="category-tab" data-category="others">
+                            <i class="fas fa-file"></i>
+                            Others
+                        </button>
+                    </div>
+                    
+                    <!-- Filters and Controls -->
+                    <div class="inventory-controls">
+                        <div class="inventory-stats">
+                            <span id="inventoryCount">0 documents</span>
+                            <span class="separator">•</span>
+                            <span id="totalSize">0 KB</span>
+                        </div>
+                        
+                        <div class="filter-controls">
+                            <!-- Sort Dropdown -->
+                            <div class="filter-group">
+                                <label for="sortSelect">
+                                    <i class="fas fa-sort"></i>
+                                    Sort by:
+                                </label>
+                                <select id="sortSelect" class="filter-select">
+                                    <option value="date-desc">Date (Newest First)</option>
+                                    <option value="date-asc">Date (Oldest First)</option>
+                                    <option value="size-desc">Size (Largest First)</option>
+                                    <option value="size-asc">Size (Smallest First)</option>
+                                    <option value="title-asc">Title (A-Z)</option>
+                                    <option value="title-desc">Title (Z-A)</option>
+                                </select>
+                            </div>
+                            
+                            <!-- File Type Filter -->
+                            <div class="filter-group">
+                                <label for="typeFilter">
+                                    <i class="fas fa-filter"></i>
+                                    File Type:
+                                </label>
+                                <select id="typeFilter" class="filter-select">
+                                    <option value="all">All Types</option>
+                                    <option value="pdf">PDF Files</option>
+                                    <option value="docx">Word Documents</option>
+                                    <option value="pptx">PowerPoint</option>
+                                    <option value="xlsx">Excel Files</option>
+                                    <option value="txt">Text Files</option>
+                                    <option value="images">Images (PNG, JPG, etc.)</option>
+                                    <option value="others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button id="clearAllBtn" class="clear-btn">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    
+                    <div id="documentList" class="document-list">
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No documents added yet. Start by adding your first document!</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle"></i> Success!</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage">Document added successfully!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Title Modal -->
+    <div id="editTitleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Edit Title</h3>
+                <span class="close" id="closeEditTitleModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="editTitleInput" class="filter-select" placeholder="Enter new title">
+                <button id="saveEditTitleBtn" class="submit-btn" style="margin-top: 20px;">Save</button>
+            </div>
+        </div>
+    </div>
+    <input type="file" id="replaceFileInput" style="display:none;" />
+
+    <script>
+        // Document Manager JavaScript - Electron Version
+        const { ipcRenderer } = require('electron');
+
+        class DocumentManager {
+            constructor() {
+                this.documents = JSON.parse(localStorage.getItem('documents')) || [];
+
+                // Retroactively add category and type to existing documents
+                let needsSave = false;
+                this.documents.forEach(doc => {
+                    if (!doc.category || !doc.type) {
+                        const { category, type } = this.getFileCategoryAndType(doc.fileName || '');
+                        doc.category = category;
+                        doc.type = type;
+                        needsSave = true;
+                    }
+                });
+
+                if (needsSave) {
+                    this.saveToLocalStorage();
+                }
+
+                this.currentTab = 'inventory';
+                this.searchDebounceTimeout = null;
+                this.selectedCategory = 'all';
+                this.selectedSort = 'date-desc';
+                this.selectedType = 'all';
+                this.selectedSearchType = 'all';
+                this.initializeElements();
+                this.bindEvents();
+                this.updateDocumentCount();
+                this.renderDocuments();
+                this.showTab('inventory');
+            }
+
+            initializeElements() {
+                this.documentForm = document.getElementById('documentForm');
+                this.documentTitleInput = document.getElementById('documentTitle');
+                this.documentPathInput = document.getElementById('documentPath');
+                this.selectedFileName = document.getElementById('selectedFileName');
+                this.documentList = document.getElementById('documentList');
+                this.documentCount = document.getElementById('documentCount');
+                this.inventoryCount = document.getElementById('inventoryCount');
+                this.totalSize = document.getElementById('totalSize');
+                this.searchInput = document.getElementById('searchInput');
+                this.searchResultsList = document.getElementById('searchResultsList');
+                this.searchBtn = document.getElementById('searchBtn');
+                this.clearAllBtn = document.getElementById('clearAllBtn');
+                this.successModal = document.getElementById('successModal');
+                this.successMessage = document.getElementById('successMessage');
+                this.closeModal = document.querySelector('.close');
+                this.pageTitle = document.getElementById('pageTitle');
+                this.pageDescription = document.getElementById('pageDescription');
+                this.tabButtons = document.querySelectorAll('.tab-btn');
+                this.tabContents = document.querySelectorAll('.tab-content');
+                this.categoryTabs = document.querySelectorAll('.category-tab');
+                this.sortSelect = document.getElementById('sortSelect');
+                this.typeFilter = document.getElementById('typeFilter');
+                this.addDocumentSection = document.getElementById('add-document-section');
+                this.previewFileBtn = document.getElementById('previewFileBtn');
+            }
+
+            bindEvents() {
+                this.documentForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                
+                const fileBtn = document.querySelector('.file-btn');
+                fileBtn.addEventListener('click', () => this.handleFileSelect());
+
+                this.searchInput.addEventListener('input', () => {
+                    clearTimeout(this.searchDebounceTimeout);
+                    this.searchDebounceTimeout = setTimeout(() => this.searchDocuments(), 300);
+                });
+
+                this.clearAllBtn.addEventListener('click', () => this.clearAllDocuments());
+                
+                this.closeModal.addEventListener('click', () => this.closeSuccessModal());
+                
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.successModal) this.closeSuccessModal();
+                });
+                
+                this.tabButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const tabName = e.target.closest('.tab-btn').getAttribute('data-tab');
+                        this.showTab(tabName);
+                    });
+                });
+
+                this.documentList.addEventListener('click', (e) => {
+                    if (e.target.closest('.open-btn')) {
+                        const docId = e.target.closest('.document-item').dataset.id;
+                        this.openFileLocation(docId);
+                    }
+                    if (e.target.closest('.delete-btn')) {
+                        const docId = e.target.closest('.document-item').dataset.id;
+                        this.deleteDocument(docId);
+                    }
+                    if (e.target.closest('.open-file-btn')) {
+                        const docId = e.target.closest('.document-item').dataset.id;
+                        this.openDocument(docId);
+                    }
+                });
+
+                this.searchResultsList.addEventListener('click', (e) => {
+                    if (e.target.closest('.open-btn')) {
+                        const docId = e.target.closest('.document-item').dataset.id;
+                        this.openFileLocation(docId);
+                    }
+                    if (e.target.closest('.delete-btn')) {
+                        const docId = e.target.closest('.document-item').dataset.id;
+                        this.deleteDocument(docId);
+                    }
+                    if (e.target.closest('.open-file-btn')) {
+                        const docId = e.target.closest('.document-item').dataset.id;
+                        this.openDocument(docId);
+                    }
+                });
+
+                this.previewFileBtn.addEventListener('click', () => this.previewSelectedFile());
+
+                // Drag and drop events for the 'Add' tab
+                this.addDocumentSection.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addDocumentSection.classList.add('drag-over');
+                });
+
+                this.addDocumentSection.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addDocumentSection.classList.remove('drag-over');
+                });
+
+                this.addDocumentSection.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addDocumentSection.classList.remove('drag-over');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.handleDroppedFile(files[0]);
+                    }
+                });
+                
+                // Category tab events
+                this.categoryTabs.forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        this.categoryTabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        this.selectedCategory = tab.getAttribute('data-category');
+                        this.renderDocuments();
+                    });
+                });
+                // Sort dropdown
+                if (this.sortSelect) {
+                    this.sortSelect.addEventListener('change', (e) => {
+                        this.selectedSort = e.target.value;
+                        this.renderDocuments();
+                    });
+                }
+                // Type filter dropdown
+                if (this.typeFilter) {
+                    this.typeFilter.addEventListener('change', (e) => {
+                        this.selectedType = e.target.value;
+                        this.renderDocuments();
+                    });
+                }
+
+                // Edit and Replace actions for inventory and search
+                const editTitleModal = document.getElementById('editTitleModal');
+                const editTitleInput = document.getElementById('editTitleInput');
+                const saveEditTitleBtn = document.getElementById('saveEditTitleBtn');
+                const closeEditTitleModal = document.getElementById('closeEditTitleModal');
+                const replaceFileInput = document.getElementById('replaceFileInput');
+                let editingDocId = null;
+                // Inventory and search document actions
+                [this.documentList, this.searchResultsList].forEach(list => {
+                    if (!list) return;
+                    list.addEventListener('click', (e) => {
+                        const docItem = e.target.closest('.document-item');
+                        if (!docItem) return;
+                        const docId = docItem.dataset.id;
+                        if (e.target.closest('.edit-btn')) {
+                            // Open edit modal
+                            editingDocId = docId;
+                            const doc = this.documents.find(d => d.id == docId);
+                            if (doc) {
+                                editTitleInput.value = doc.title;
+                                editTitleModal.style.display = 'block';
+                                setTimeout(() => editTitleInput.focus(), 100);
+                            }
+                        }
+                        if (e.target.closest('.replace-btn')) {
+                            // Open file picker
+                            editingDocId = docId;
+                            replaceFileInput.value = '';
+                            replaceFileInput.click();
+                        }
+                    });
+                });
+                // Save edited title
+                saveEditTitleBtn.addEventListener('click', () => {
+                    if (editingDocId && editTitleInput.value.trim()) {
+                        const doc = this.documents.find(d => d.id == editingDocId);
+                        if (doc) {
+                            doc.title = editTitleInput.value.trim();
+                            this.saveToLocalStorage();
+                            this.renderDocuments();
+                            this.searchDocuments();
+                            editTitleModal.style.display = 'none';
+                        }
+                    }
+                });
+                // Close modal
+                closeEditTitleModal.addEventListener('click', () => {
+                    editTitleModal.style.display = 'none';
+                });
+                window.addEventListener('click', (e) => {
+                    if (e.target === editTitleModal) editTitleModal.style.display = 'none';
+                });
+                // Replace file logic
+                replaceFileInput.addEventListener('change', async (e) => {
+                    if (editingDocId && replaceFileInput.files.length > 0) {
+                        const file = replaceFileInput.files[0];
+                        const fileInfo = await ipcRenderer.invoke('get-file-info', file.path);
+                        if (fileInfo && fileInfo.exists) {
+                            const doc = this.documents.find(d => d.id == editingDocId);
+                            if (doc) {
+                                doc.fileName = fileInfo.name;
+                                doc.path = fileInfo.path;
+                                doc.size = fileInfo.size;
+                                const { category, type } = this.getFileCategoryAndType(fileInfo.name);
+                                doc.category = category;
+                                doc.type = type;
+                                this.saveToLocalStorage();
+                                this.renderDocuments();
+                                this.searchDocuments();
+                            }
+                        }
+                    }
+                });
+                // Search type filter
+                const searchTypeFilter = document.getElementById('searchTypeFilter');
+                if (searchTypeFilter) {
+                    searchTypeFilter.addEventListener('change', () => {
+                        this.selectedSearchType = searchTypeFilter.value;
+                        this.searchDocuments();
+                    });
+                }
+            }
+
+            showTab(tabName) {
+                this.currentTab = tabName;
+                
+                this.tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('data-tab') === tabName) {
+                        btn.classList.add('active');
+                    }
+                });
+
+                this.tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.getAttribute('data-tab') === tabName) {
+                        content.classList.add('active');
+                    }
+                });
+
+                this.updatePageHeader(tabName);
+
+                // Reset filters when switching tabs
+                if (tabName === 'inventory') {
+                    this.selectedCategory = 'all';
+                    this.selectedType = 'all';
+                    if (this.typeFilter) this.typeFilter.value = 'all';
+                    this.renderDocuments();
+                }
+                if (tabName === 'search') {
+                    this.selectedSearchType = 'all';
+                    const searchTypeFilter = document.getElementById('searchTypeFilter');
+                    if (searchTypeFilter) searchTypeFilter.value = 'all';
+                    setTimeout(() => this.searchInput.focus(), 100);
+                    this.searchDocuments();
+                }
+            }
+
+            updatePageHeader(tabName) {
+                const titles = {
+                    'add': 'Add New Document',
+                    'search': 'Search Documents',
+                    'inventory': 'Document Inventory'
+                };
+                
+                const descriptions = {
+                    'add': 'Upload and organize your documents with custom names',
+                    'search': 'Find documents quickly using smart search',
+                    'inventory': 'View and manage all your stored documents'
+                };
+
+                this.pageTitle.textContent = titles[tabName];
+                this.pageDescription.textContent = descriptions[tabName];
+            }
+
+            // File type/category detection
+            getFileCategoryAndType(fileName) {
+                const lastDot = fileName.lastIndexOf('.');
+                const ext = (lastDot === -1) ? '' : fileName.substring(lastDot + 1).toLowerCase();
+
+                switch (ext) {
+                    case 'pdf':
+                        return { category: 'documents', type: 'pdf' };
+                    case 'doc':
+                    case 'docx':
+                        return { category: 'documents', type: 'docx' };
+                    case 'ppt':
+                    case 'pptx':
+                        return { category: 'documents', type: 'pptx' };
+                    case 'xls':
+                    case 'xlsx':
+                        return { category: 'documents', type: 'xlsx' };
+                    case 'txt':
+                        return { category: 'documents', type: 'txt' };
+                    case 'png':
+                    case 'jpg':
+                    case 'jpeg':
+                    case 'gif':
+                    case 'bmp':
+                    case 'webp':
+                        return { category: 'images', type: 'image' };
+                    default:
+                        return { category: 'others', type: 'other' };
+                }
+            }
+
+            async handleFileSelect() {
+                try {
+                    const fileInfo = await ipcRenderer.invoke('select-file');
+                    if (fileInfo) {
+                        this.selectedFileName.textContent = fileInfo.name;
+                        this.documentPathInput.value = fileInfo.path;
+                        this.currentFileInfo = fileInfo;
+                        this.previewFileBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Error selecting file:', error);
+                    this.showError('Error selecting file: ' + error.message);
+                }
+            }
+
+            async handleFormSubmit(event) {
+                event.preventDefault();
+                const title = this.documentTitleInput.value.trim();
+                if (!title) {
+                    this.showError('Please enter a document title');
+                    return;
+                }
+                if (!this.currentFileInfo) {
+                    this.showError('Please select a file');
+                    return;
+                }
+                const { category, type } = this.getFileCategoryAndType(this.currentFileInfo.name);
+                const documentData = {
+                    id: Date.now(),
+                    title: title,
+                    fileName: this.currentFileInfo.name,
+                    path: this.currentFileInfo.path,
+                    addedDate: new Date().toISOString(),
+                    size: this.currentFileInfo.size,
+                    type: type,
+                    category: category
+                };
+                this.documents.push(documentData);
+                this.saveToLocalStorage();
+                this.updateDocumentCount();
+                this.renderDocuments();
+                this.showSuccessModal(`Document "${title}" added successfully!`);
+                this.resetForm();
+                this.showTab('inventory');
+            }
+
+            async handleDroppedFile(file) {
+                const fileInfo = await ipcRenderer.invoke('get-file-info', file.path);
+                if (fileInfo && fileInfo.exists) {
+                    this.selectedFileName.textContent = fileInfo.name;
+                    this.documentPathInput.value = fileInfo.path;
+                    
+                    // Auto-fill title, but allow user to change it
+                    this.documentTitleInput.value = fileInfo.name.split('.').slice(0, -1).join('.');
+                    
+                    this.currentFileInfo = {
+                        name: fileInfo.name,
+                        path: fileInfo.path,
+                        size: fileInfo.size,
+                    };
+                    
+                    this.previewFileBtn.disabled = false;
+                    this.showSuccessModal(`File "${fileInfo.name}" is ready to be added.`);
+                    this.documentTitleInput.focus();
+                } else {
+                    this.showError('Could not process the dropped file.');
+                }
+            }
+
+            // Filtering, sorting, and category logic
+            getFilteredSortedDocuments() {
+                let docs = [...this.documents];
+                // Category filter
+                if (this.selectedCategory && this.selectedCategory !== 'all') {
+                    docs = docs.filter(doc => doc.category === this.selectedCategory);
+                }
+                // File type filter
+                if (this.selectedType && this.selectedType !== 'all') {
+                    if (this.selectedType === 'images') {
+                        docs = docs.filter(doc => doc.type === 'image');
+                    } else if (this.selectedType === 'others') {
+                        docs = docs.filter(doc => doc.type === 'other');
+                    } else {
+                        docs = docs.filter(doc => doc.type === this.selectedType);
+                    }
+                }
+                // Sorting
+                switch (this.selectedSort) {
+                    case 'date-desc':
+                        docs.sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate));
+                        break;
+                    case 'date-asc':
+                        docs.sort((a, b) => new Date(a.addedDate) - new Date(b.addedDate));
+                        break;
+                    case 'size-desc':
+                        docs.sort((a, b) => (b.size || 0) - (a.size || 0));
+                        break;
+                    case 'size-asc':
+                        docs.sort((a, b) => (a.size || 0) - (b.size || 0));
+                        break;
+                    case 'title-asc':
+                        docs.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                        break;
+                    case 'title-desc':
+                        docs.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+                        break;
+                }
+                return docs;
+            }
+
+            renderDocuments() {
+                if (!this.documentList) return;
+                const docs = this.getFilteredSortedDocuments();
+                if (docs.length === 0) {
+                    this.documentList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No documents found for the selected filters.</p>
+                        </div>
+                    `;
+                } else {
+                    this.documentList.innerHTML = this._generateDocumentHtml(docs);
+                }
+                this.updateDocumentCount();
+            }
+
+            searchDocuments() {
+                const searchTerm = this.searchInput.value.toLowerCase().trim();
+                // Use both selectedSearchType and selectedType/category for filtering
+                let filteredDocuments = this.documents.filter(doc => {
+                    // Category filter (if any)
+                    if (this.selectedCategory && this.selectedCategory !== 'all') {
+                        if (doc.category !== this.selectedCategory) return false;
+                    }
+                    // File type filter (inventory or search)
+                    let typeFilter = this.currentTab === 'search' ? this.selectedSearchType : this.selectedType;
+                    if (typeFilter && typeFilter !== 'all') {
+                        if (typeFilter === 'images') {
+                            if (doc.type !== 'image') return false;
+                        } else if (typeFilter === 'others') {
+                            if (doc.type !== 'other') return false;
+                        } else {
+                            if (doc.type !== typeFilter) return false;
+                        }
+                    }
+                    // Search term
+                    if (searchTerm) {
+                        const title = doc.title || '';
+                        const fileName = doc.fileName || '';
+                        return title.toLowerCase().includes(searchTerm) || fileName.toLowerCase().includes(searchTerm);
+                    }
+                    return true;
+                });
+                this._renderSearchResults(filteredDocuments, searchTerm ? 'filtered' : 'initial');
+            }
+
+            _renderSearchResults(documents, state) {
+                if (!this.searchResultsList) return;
+                if (state === 'initial') {
+                    this.searchResultsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <p>Enter a search term above to find documents.</p>
+                        </div>
+                    `;
+                } else if (documents.length === 0) {
+                    this.searchResultsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>No results found for your search.</p>
+                        </div>
+                    `;
+                } else {
+                    this.searchResultsList.innerHTML = this._generateDocumentHtml(documents);
+                }
+            }
+
+            _generateDocumentHtml(documents) {
+                return documents.map(doc => {
+                    const iconClass = this.getFileIcon(doc.type);
+                    const formattedSize = this.formatBytes(doc.size);
+                    const formattedDate = new Date(doc.addedDate).toLocaleDateString();
+
+                    return `
+                        <div class="document-item" data-id="${doc.id}">
+                            <div class="doc-icon">
+                                <i class="${iconClass}"></i>
+                            </div>
+                            <div class="doc-details">
+                                <h3 class="doc-title">${doc.title}</h3>
+                                <p class="doc-filename">${doc.fileName}</p>
+                                <div class="doc-meta">
+                                    <span><i class="fas fa-calendar-alt"></i> ${formattedDate}</span>
+                                    <span><i class="fas fa-hdd"></i> ${formattedSize}</span>
+                                    <span><i class="fas fa-file-alt"></i> ${doc.type.toUpperCase()}</span>
+                                </div>
+                            </div>
+                            <div class="doc-actions">
+                                <button class="action-btn open-file-btn" title="Open File">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <button class="action-btn open-btn" title="Open File Location">
+                                    <i class="fas fa-folder-open"></i>
+                                </button>
+                                <button class="action-btn edit-btn" title="Edit Title">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn replace-btn" title="Replace File">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="action-btn delete-btn" title="Delete Document">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            async previewSelectedFile() {
+                if (this.currentFileInfo && this.currentFileInfo.path) {
+                    try {
+                        const result = await ipcRenderer.invoke('open-file', this.currentFileInfo.path);
+                        if (!result.success) {
+                            this.showError(`Could not open file: ${result.message}`);
+                        }
+                    } catch (error) {
+                        this.showError(`Error opening file: ${error.message}`);
+                    }
+                }
+            }
+
+            async openDocument(docId) {
+                const doc = this.documents.find(d => d.id == docId);
+                if (doc) {
+                    try {
+                        const result = await ipcRenderer.invoke('open-file', doc.path);
+                        if (!result.success) {
+                            this.showError(`Could not open file: ${result.message}`);
+                        }
+                    } catch (error) {
+                        this.showError(`Error opening file: ${error.message}`);
+                    }
+                }
+            }
+
+            async openFileLocation(docId) {
+                const doc = this.documents.find(d => d.id == docId);
+                if (doc) {
+                    await ipcRenderer.invoke('open-file-location', doc.path);
+                }
+            }
+
+            deleteDocument(docId) {
+                const docIndex = this.documents.findIndex(d => d.id == docId);
+                if (docIndex > -1) {
+                    const doc = this.documents[docIndex];
+                    if (confirm(`Are you sure you want to delete "${doc.title}"? This cannot be undone.`)) {
+                        this.documents.splice(docIndex, 1);
+                        this.saveToLocalStorage();
+                        this.renderDocuments();
+                        this.searchDocuments();
+                        this.updateDocumentCount();
+                        this.showSuccessModal('Document deleted successfully.');
+                    }
+                }
+            }
+
+            clearAllDocuments() {
+                if (confirm('Are you sure you want to delete all documents? This action cannot be undone.')) {
+                    this.documents = [];
+                    this.saveToLocalStorage();
+                    this.renderDocuments();
+                    this.searchDocuments();
+                    this.showSuccessModal('All documents cleared successfully!');
+                }
+            }
+
+            updateDocumentCount() {
+                const count = this.getFilteredSortedDocuments().length;
+                const totalSize = this.getFilteredSortedDocuments().reduce((sum, doc) => sum + (doc.size || 0), 0);
+                if (this.documentCount) {
+                    this.documentCount.textContent = `${count} document${count !== 1 ? 's' : ''}`;
+                }
+                if (this.inventoryCount) {
+                    this.inventoryCount.textContent = `${count} document${count !== 1 ? 's' : ''}`;
+                }
+                if (this.totalSize) {
+                    this.totalSize.textContent = this.formatFileSize(totalSize);
+                }
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            saveToLocalStorage() {
+                localStorage.setItem('documents', JSON.stringify(this.documents));
+            }
+
+            resetForm() {
+                if (this.documentForm) this.documentForm.reset();
+                if (this.selectedFileName) this.selectedFileName.textContent = 'No file selected';
+                if (this.documentPathInput) this.documentPathInput.value = '';
+                this.currentFileInfo = null;
+                this.previewFileBtn.disabled = true;
+            }
+
+            showSuccessModal(message) {
+                if (this.successMessage) this.successMessage.textContent = message;
+                if (this.successModal) this.successModal.style.display = 'block';
+                setTimeout(() => {
+                    this.closeSuccessModal();
+                }, 3000);
+            }
+
+            closeSuccessModal() {
+                if (this.successModal) this.successModal.style.display = 'none';
+            }
+
+            showError(message) {
+                alert(message);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            getFileIcon(type) {
+                switch (type) {
+                    case 'pdf': return 'fas fa-file-pdf';
+                    case 'docx': return 'fas fa-file-word';
+                    case 'pptx': return 'fas fa-file-powerpoint';
+                    case 'xlsx': return 'fas fa-file-excel';
+                    case 'txt': return 'fas fa-file-alt';
+                    case 'image': return 'fas fa-file-image';
+                    default: return 'fas fa-file';
+                }
+            }
+
+            formatBytes(bytes, decimals = 2) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+        }
+
+        let documentManager;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            documentManager = new DocumentManager();
+        });
+    </script>
+</body>
+</html> 
