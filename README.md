@@ -6,12 +6,6 @@
   <br>
   <h1>📚 Document Manager App</h1>
   <p>A modern, responsive web app for organizing your documents. Beautiful UI, lightning-fast search, and local storage—all in your browser!</p>
-  <a href="#features">Features</a> • 
-  <a href="#how-to-use">How to Use</a> • 
-  <a href="#getting-started">Getting Started</a> • 
-  <a href="#customization">Customization</a> • 
-  <a href="#future-enhancements">Future Enhancements</a> • 
-  <a href="#license">License</a>
 </div>
 
 ---
